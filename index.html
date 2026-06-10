@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simulador gratuito de abertura de caixas inspirado no CS2, com probabilidades oficiais por raridade.">
+  <title>- Simulador de Caixas CS2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Open cs2 box</title>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Dropzone início">
+      <span class="brand-mark">D</span>
+      <span>DROP<span>ZONE</span></span>
+    </a>
+    <nav class="nav" aria-label="Navegação principal">
+      <a class="active" href="#simulador">Simulador</a>
+      <a href="#caixas">Caixas</a>
+      <a href="#chances">Chances</a>
+      <a href="#inventario">Inventário</a>
+      <a href="#catalogo">Skins</a>
+    </nav>
+    <div class="top-actions">
+      <div class="balance">
+        <span>Saldo virtual</span>
+        <strong id="balance">R$ 1.000,00</strong>
+      </div>
+      <button class="icon-button" id="soundToggle" type="button" aria-label="Alternar sons" title="Alternar sons">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.8 8.5H3v7h3.8L11 19V5Zm4.5 3.2a5 5 0 0 1 0 7.6M18 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="simulador">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> ABERTURA 100% SIMULADA</div>
+        <h1>ABRA. TESTE.<br><em>DESCUBRA.</em></h1>
+        <p>Abra caixas reais do CS2, descubra as skins do catálogo e consulte preços de referência do Mercado da Comunidade. Sem gastar dinheiro real.</p>
+        <div class="hero-stats">
+          <div><strong id="totalOpened">0</strong><span>Caixas abertas</span></div>
+          <div><strong id="bestDrop">—</strong><span>Melhor drop</span></div>
+          <div><strong id="spentValue">R$ 0</strong><span>Saldo usado</span></div>
+        </div>
+      </div>
+
+      <div class="case-stage" aria-label="Caixa selecionada">
+        <div class="stage-glow"></div>
+        <div class="crosshair crosshair-a"></div>
+        <div class="crosshair crosshair-b"></div>
+        <div class="case-number">CASE<br><strong id="caseNumber">01</strong></div>
+        <img src="assets/case.png" alt="Caixa selecionada" class="case-image" id="caseImage">
+        <div class="case-shadow"></div>
+        <div class="float-tag tag-a"><i></i> RARIDADE REAL</div>
+        <div class="float-tag tag-b"><i></i> RNG TRANSPARENTE</div>
+      </div>
+    </section>
+
+    <section class="cases-section" id="caixas">
+      <div class="section-title">
+        <div>
+          <span class="section-index">01 / CAIXAS REAIS</span>
+          <h2>ESCOLHA SUA <em>CAIXA</em></h2>
+        </div>
+        <div class="catalog-status" id="dataStatus">CARREGANDO CATÁLOGO...</div>
+      </div>
+      <div class="case-search-row">
+        <label class="search-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <input id="caseSearch" type="search" placeholder="Buscar caixa..." autocomplete="off">
+        </label>
+        <span id="caseCount"></span>
+      </div>
+      <div class="case-list" id="caseList"></div>
+    </section>
+
+    <section class="simulator-panel">
+      <div class="case-heading">
+        <div>
+          <span class="section-index">02 / SIMULADOR</span>
+          <h2 id="selectedCaseName">CARREGANDO <em>CAIXA</em></h2>
+        </div>
+        <div class="case-meta">
+          <span>CONTEÚDO</span>
+          <strong id="caseContents">—</strong>
+        </div>
+      </div>
+
+      <div class="roulette-shell">
+        <div class="roulette-fade left"></div>
+        <div class="roulette-fade right"></div>
+        <div class="roulette-marker"><span></span></div>
+        <div class="roulette" id="roulette" aria-live="polite"></div>
+      </div>
+
+      <div class="open-controls">
+        <label class="fast-toggle">
+          <input type="checkbox" id="fastMode">
+          <span></span>
+          Abertura rápida
+        </label>
+        <button class="open-button" id="openButton" type="button">
+          <span class="button-main">ABRIR CAIXA</span>
+          <span class="button-price"><span id="caseOpenPrice">R$ 12,50</span> <small>virtual</small></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+        <button class="reset-button" id="resetButton" type="button">REINICIAR</button>
+      </div>
+      <p class="sim-note">Este simulador é apenas para entretenimento. Nenhum item ou valor real é concedido.</p>
+    </section>
+
+    <section class="odds-section" id="chances">
+      <div class="section-title">
+        <div>
+          <span class="section-index">03 / TRANSPARÊNCIA</span>
+          <h2>CHANCES DE <em>DROP</em></h2>
+        </div>
+        <a href="https://www.csgo.com.cn/news/gamebroad/20170911/206155.shtml" target="_blank" rel="noreferrer">
+          FONTE OFICIAL
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5h8v8M15 5l-9 9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </a>
+      </div>
+
+      <div class="odds-grid">
+        <article class="odds-card blue">
+          <div class="odds-top"><span>01</span><i></i></div>
+          <h3>AZUL</h3><p>Mil-Spec</p><strong>79,923%</strong>
+          <div class="bar"><span style="width:79.923%"></span></div>
+          <small>≈ 1 em 1,25</small>
+        </article>
+        <article class="odds-card purple">
+          <div class="odds-top"><span>02</span><i></i></div>
+          <h3>ROXA</h3><p>Restrita</p><strong>15,985%</strong>
+          <div class="bar"><span style="width:15.985%"></span></div>
+          <small>≈ 1 em 6,26</small>
+        </article>
+        <article class="odds-card pink">
+          <div class="odds-top"><span>03</span><i></i></div>
+          <h3>ROSA</h3><p>Secreta</p><strong>3,197%</strong>
+          <div class="bar"><span style="width:3.197%"></span></div>
+          <small>≈ 1 em 31,28</small>
+        </article>
+        <article class="odds-card red">
+          <div class="odds-top"><span>04</span><i></i></div>
+          <h3>VERMELHA</h3><p>Oculta</p><strong>0,639%</strong>
+          <div class="bar"><span style="width:6.39%"></span></div>
+          <small>≈ 1 em 156,5</small>
+        </article>
+        <article class="odds-card gold">
+          <div class="odds-top"><span>05</span><i></i></div>
+          <h3>DOURADA</h3><p>Item especial</p><strong>0,256%</strong>
+          <div class="bar"><span style="width:2.56%"></span></div>
+          <small>≈ 1 em 390,6</small>
+        </article>
+      </div>
+      <p class="odds-footnote"><span>*</span> Dentro de cada raridade, todos os itens desta caixa têm o mesmo peso. Itens elegíveis têm 10% de chance de ser StatTrak™.</p>
+    </section>
+
+    <section class="inventory-section" id="inventario">
+      <div class="section-title">
+        <div>
+          <span class="section-index">04 / SUA COLEÇÃO</span>
+          <h2>INVENTÁRIO <em>VIRTUAL</em></h2>
+        </div>
+        <div class="inventory-value">
+          <span>VALOR SIMULADO</span>
+          <strong id="inventoryValue">R$ 0,00</strong>
+        </div>
+      </div>
+
+      <div class="inventory-toolbar">
+        <div class="filter-group" id="filters">
+          <button class="active" data-filter="all" type="button">TODAS <span id="allCount">0</span></button>
+          <button data-filter="blue" type="button">AZUL</button>
+          <button data-filter="purple" type="button">ROXA</button>
+          <button data-filter="pink" type="button">ROSA</button>
+          <button data-filter="red" type="button">VERMELHA</button>
+          <button data-filter="gold" type="button">DOURADA</button>
+        </div>
+        <button class="clear-button" id="clearInventory" type="button">LIMPAR INVENTÁRIO</button>
+      </div>
+
+      <div class="inventory-grid" id="inventoryGrid">
+        <div class="empty-inventory">
+          <div class="empty-icon">D</div>
+          <strong>SEU INVENTÁRIO ESTÁ VAZIO</strong>
+          <p>Abra uma caixa para receber seu primeiro item virtual.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog-section" id="catalogo">
+      <div class="section-title">
+        <div>
+          <span class="section-index">05 / CATÁLOGO COMPLETO</span>
+          <h2>TODAS AS <em>SKINS</em></h2>
+        </div>
+        <div class="catalog-total"><strong id="catalogTotal">0</strong><span>SKINS-BASE</span></div>
+      </div>
+      <div class="catalog-toolbar">
+        <label class="search-field catalog-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <input id="skinSearch" type="search" placeholder="Buscar arma ou skin..." autocomplete="off">
+        </label>
+        <select id="raritySelect" aria-label="Filtrar raridade">
+          <option value="all">Todas as raridades</option>
+          <option value="blue">Mil-Spec</option>
+          <option value="purple">Restrita</option>
+          <option value="pink">Secreta</option>
+          <option value="red">Oculta / Extraordinária</option>
+        </select>
+      </div>
+      <p class="price-disclaimer">Catálogo: <a href="https://github.com/ByMykel/CSGO-API" target="_blank" rel="noreferrer">CSGO-API</a>. Os preços são consultados sob demanda no <a href="https://steamcommunity.com/market/" target="_blank" rel="noreferrer">Mercado da Comunidade Steam</a> e variam por desgaste e StatTrak™. O catálogo mostra skins-base; cada variante é precificada ao ser obtida.</p>
+      <div class="catalog-grid" id="catalogGrid"></div>
+      <button class="load-more" id="loadMore" type="button">CARREGAR MAIS</button>
+    </section>
+  </main>
+
+  <div class="result-modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="result-card" id="resultCard">
+      <button class="modal-close" id="modalClose" type="button" aria-label="Fechar">×</button>
+      <span class="result-kicker">VOCÊ RECEBEU</span>
+      <div class="result-weapon" id="resultWeapon"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultSkin"></p>
+      <div class="result-details">
+        <span id="resultRarity"></span>
+        <strong id="resultPrice">CONSULTANDO PREÇO...</strong>
+      </div>
+      <div class="modal-actions">
+        <button class="sell-action" id="modalSell" type="button" disabled>VENDER</button>
+        <button class="modal-action" id="modalAgain" type="button">ABRIR OUTRA</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="brand footer-brand"><span class="brand-mark">D</span><span>DROP<span>ZONE</span></span></div>
+    <p>Projeto independente, sem vínculo com Valve. Imagens e preços pertencem às suas fontes. Vendas e saldos são exclusivamente virtuais.</p>
+    <span>APENAS SIMULAÇÃO · 2026</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
