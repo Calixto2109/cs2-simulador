@@ -134,6 +134,7 @@ function marketHashName(item) {
 }
 
 function createDrop(skin, isRare = false) {
+  if (!skin) return null;
   const item = {
     ...skin,
     id: `${Date.now()}-${Math.floor(secureRandom() * 1e9)}`,
@@ -165,7 +166,8 @@ function pickDrop() {
   }
 
   if (selectedRarity === "gold" && selected.rare.length) {
-    return createDrop(state.skinMap.get(randomFrom(selected.rare)), true);
+    const rarePool = selected.rare.map((id) => state.skinMap.get(id)).filter(Boolean);
+    if (rarePool.length) return createDrop(randomFrom(rarePool), true);
   }
 
   const pool = selected.contains
@@ -285,14 +287,19 @@ function beep(frequency = 420, duration = 0.04, volume = 0.025) {
 
 async function openCase() {
   if (state.opening || !state.selectedCase || state.balance < OPEN_PRICE) return;
+  const winner = pickDrop();
+  if (!winner) {
+    els.dataStatus.textContent = "CAIXA SEM ITENS DISPONIVEIS";
+    return;
+  }
   state.opening = true;
   state.balance -= OPEN_PRICE;
   state.spent += OPEN_PRICE;
   state.opened += 1;
   updateStats();
 
-  const winner = pickDrop();
-  const sequence = Array.from({ length: 45 }, () => pickDrop());
+  const sequence = Array.from({ length: 45 }, () => pickDrop()).filter(Boolean);
+  while (sequence.length < 45) sequence.push(winner);
   sequence[38] = winner;
   els.roulette.innerHTML = sequence.map(rouletteItem).join("");
   els.roulette.style.transition = "none";
@@ -483,13 +490,16 @@ function resetSimulation() {
 
 async function loadData() {
   try {
+    const catalogUrl = new URL("./assets/catalog.json", document.baseURI);
+    const casesUrl = new URL("./assets/cases.json", document.baseURI);
     const [skinsResponse, casesResponse] = await Promise.all([
-      fetch("assets/catalog.json"),
-      fetch("assets/cases.json")
+      fetch(catalogUrl),
+      fetch(casesUrl)
     ]);
     if (!skinsResponse.ok || !casesResponse.ok) throw new Error("Falha no catálogo");
     state.skins = await skinsResponse.json();
     state.cases = await casesResponse.json();
+    if (!state.skins.length || !state.cases.length) throw new Error("Catalogo vazio");
     state.skinMap = new Map(state.skins.map((skin) => [skin.id, skin]));
     const restoredCaseId = restoreState();
     const initialCase = state.cases.find((crate) => crate.id === restoredCaseId) || state.cases[0];
@@ -498,7 +508,8 @@ async function loadData() {
     renderCatalog();
     renderInventory();
     updateStats();
-  } catch {
+  } catch (error) {
+    console.error("Erro ao carregar o catalogo:", error);
     els.dataStatus.textContent = "ERRO AO CARREGAR DADOS";
     els.caseList.innerHTML = '<div class="case-empty">Execute o site com "npm start" para carregar o catálogo.</div>';
   }
